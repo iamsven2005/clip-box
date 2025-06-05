@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History of Submitted Texts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container"> <h1>History of Submitted Texts</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Client PC</th>
+                    <th>Client User</th>
+                    <th>Random Code</th>
+                    <th>Text Content</th>
+                    <th>File</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in history %}
+                <tr>
+                    <td data-label="Timestamp">{{ entry.timestamp }}</td>
+                    <td data-label="Client PC">{{ entry.client_pc }}</td>
+                    <td data-label="Client User">{{ entry.client_user }}</td>
+                    <td data-label="Random Code">{{ entry.random_code }}</td>
+                    <td data-label="Text Content">{{ entry.text_content }}</td>
+                    <td data-label="File">
+                        {% if entry.file_name %}
+                            <a href="{{ url_for('uploaded_file', filename=entry.file_name) }}" target="_blank">{{ entry.file_name }}</a>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <form method="post" action="{{ url_for('clear_history') }}" onsubmit="return confirm('Are you sure you want to clear all history?');">
+            <button type="submit" class="clear-history-button">Clear History</button>
+        </form>
+        <a href="{{ url_for('index') }}">Back to Home</a>
+    </div>
+</body>
+</html>

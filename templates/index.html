@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clip Box</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container"> <div id="toast" class="toast"></div>
+
+        <h1>Clip Box</h1>
+        <form id="submitForm" enctype="multipart/form-data">
+            <label for="user">Username:</label>
+            <input type="text" name="user" id="user" required placeholder="Enter your username">
+            <label for="content">Text Content:</label>
+            <textarea name="content" id="content" rows="10" cols="50" maxlength="1024" placeholder="Paste your text here..."></textarea>
+            <label for="file">Upload File (Optional):</label>
+            <input type="file" name="file" id="file">
+            <button type="submit">Submit</button>
+        </form>
+
+        <div id="submitResult"></div>
+
+        <h2>Retrieve Text by Code</h2>
+        <form id="retrieveForm">
+            <label for="retrieveCode">Enter Code:</label>
+            <input type="text" id="retrieveCode" name="code" maxlength="4" placeholder="Enter code" required>
+            <button type="submit">Retrieve</button>
+        </form>
+        <div id="retrievedContent"></div>
+
+        <a href="{{ url_for('history') }}">View History</a>
+        {% if random_code %}
+            <div class="code">
+                <p>Your random code: <strong>{{ random_code }}</strong></p>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="error">
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+<script>
+document.getElementById('retrieveForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const code = document.getElementById('retrieveCode').value;
+    const resp = await fetch(`/retrieve/${code}`);
+    const data = await resp.json();
+    let html = '';
+    if (data.content) {
+        html += `<div><strong>Text:</strong> ${data.content}</div>`;
+    }
+    if (data.file_name && data.file_url) {
+        // Show image preview if it's an image, otherwise show a download link
+        const ext = data.file_name.split('.').pop().toLowerCase();
+        if (['png','jpg','jpeg','gif','bmp','webp'].includes(ext)) {
+            html += `<div><strong>File:</strong> <a href="${data.file_url}" target="_blank">${data.file_name}</a><br>
+            <img src="${data.file_url}" alt="${data.file_name}" style="max-width:300px;max-height:200px;margin-top:8px;"></div>`;
+        } else {
+            html += `<div><strong>File:</strong> <a href="${data.file_url}" target="_blank">${data.file_name}</a></div>`;
+        }
+    }
+    if (data.error) {
+        showToast(data.error);
+        html = '';
+    }
+    document.getElementById('retrievedContent').innerHTML = html;
+};
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+document.getElementById('submitForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const content = document.getElementById('content').value;
+    const user = document.getElementById('user').value;
+    const fileInput = document.getElementById('file');
+    const formData = new FormData();
+    formData.append('content', content);
+    formData.append('user', user);
+    if (fileInput.files.length > 0) {
+        formData.append('file', fileInput.files[0]);
+    }
+    const resp = await fetch('/submit', {
+        method: 'POST',
+        body: formData
+    });
+    const data = await resp.json();
+    if (data.code) {
+        document.getElementById('submitResult').innerHTML = `<strong>Your random code: ${data.code}</strong>`;
+        showToast('Submitted!');
+    } else if (data.error) {
+        showToast(data.error);
+    }
+};
+</script>
+</html>
