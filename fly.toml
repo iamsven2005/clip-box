@@ -1,8 +1,5 @@
 app = "clip-box"
 
-[build]
-  image = "python:3.13"
-
 [env]
   FLASK_APP = "app.py"
   FLASK_ENV = "production"
