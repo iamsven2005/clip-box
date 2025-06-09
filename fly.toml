@@ -1,0 +1,24 @@
+app = "clip-box"
+
+[build]
+  image = "python:3.13"
+
+[env]
+  FLASK_APP = "app.py"
+  FLASK_ENV = "production"
+
+[[services]]
+  internal_port = 5000
+  protocol = "tcp"
+
+  [[services.ports]]
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+[mounts]
+  source = "clip_box_data"
+  destination = "/data"
