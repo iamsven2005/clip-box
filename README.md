@@ -62,3 +62,5 @@ clip_box
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -p 12215' git push git@192.168.1.71:/sg_it/clip_box
+
+GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes -p 12215' git clone git@192.168.1.71:/sg_it/p101
